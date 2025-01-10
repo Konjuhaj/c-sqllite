@@ -1,2 +1,11 @@
-all:
-	gcc -Wall -Werror -Wextra ./srcs/* -o db
+
+DB = db
+
+SRC = ./srcs/*
+
+HEADERS = ./headers/*
+
+all: $(DB)
+
+$(DB) : $(HEADERS)
+	gcc -Wall -Werror -Wextra $(SRC) -o $(DB)
