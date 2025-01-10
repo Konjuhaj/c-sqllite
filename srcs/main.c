@@ -35,6 +35,15 @@ MetaCommandReult eval_meta_command(InputBuffer* input_buffer) {
     }
 }
 
+//Add serialize function
+    // copy from Row* source to void destination
+    // move destination based on off set and copy size amount
+
+//Add deserialize function
+    // copy from void source to Row* destination
+    // move source based on off set and copy size amount
+
+
 PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement) {
     if (strncmp(input_buffer->buffer, "INSERT", 6) == 0) {
         statement->type = STATEMENT_INSERT;
