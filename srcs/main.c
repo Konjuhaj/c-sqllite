@@ -8,6 +8,10 @@ struct InputBuffer_t {
     size_t buffer_length;
     size_t input_length;
 };
+//define columns user name with size 32
+//defube column email with size 255
+
+//define typedef struct row
 
 typedef struct InputBuffer_t InputBuffer;
 
@@ -19,6 +23,7 @@ typedef enum {
 typedef enum {
     PREPARE_COMMAND_SUCCESS,
     PREPARE_COMMAND_UNRECOGNIZED_STATEMENT
+    //Add syntax error message
 } PrepareResult;
 
 typedef enum {
@@ -28,6 +33,7 @@ typedef enum {
 
 typedef struct {
     StatementType type;
+    //Row struct that needs to be inserted 
 } Statement;
 
 
@@ -69,6 +75,8 @@ MetaCommandReult eval_meta_command(InputBuffer* input_buffer) {
 PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement) {
     if (strncmp(input_buffer->buffer, "INSERT", 6) == 0) {
         statement->type = STATEMENT_INSERT;
+        //Add logic to read three arguments
+        //Add logic to check if there are more than tree arguments
         return (PREPARE_COMMAND_SUCCESS);
     }
     else if (strncmp(input_buffer->buffer, "SELECT", 6) == 0) {
