@@ -26,9 +26,9 @@ typedef enum {
     STATEMENT_SELECT
 } StatementType;
 
-struct Statement_t {
+typedef struct {
     StatementType type;
-} StatementType;
+} Statement;
 
 
 InputBuffer* new_input_buffer() {
@@ -56,6 +56,39 @@ void print_prompt() {
     printf("db> ");
 }
 
+MetaCommandReult eval_meta_command(InputBuffer* input_buffer) {
+    if (strcmp(input_buffer->buffer, ".exit") == 0) {
+        close_input_buffer(input_buffer);
+        exit(1);
+    }
+    else {
+        return META_COMMAND_UNRECOGNIZED_COMMAND;
+    }
+}
+
+PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement) {
+    if (strncmp(input_buffer->buffer, "INSERT", 6) == 0) {
+        statement->type = STATEMENT_INSERT;
+        return (PREPARE_COMMAND_SUCCESS);
+    }
+    else if (strncmp(input_buffer->buffer, "SELECT", 6) == 0) {
+        statement->type = STATEMENT_SELECT;
+        return(PREPARE_COMMAND_SUCCESS);
+    }
+    return(PREPARE_COMMAND_UNRECOGNIZED_STATEMENT);
+}
+
+void execute_statement(Statement* statement) {
+    switch(statement->type) {
+        case (STATEMENT_INSERT):
+            printf("INSERT STATEMENT LOGIC HERE! \n");
+            break;
+        case (STATEMENT_SELECT):
+            printf("SELECT STATEMENT LOGIC HERE! \n");
+            break;
+    }
+}
+
 int main(void) {
     InputBuffer* input_buffer = new_input_buffer();
     input_buffer->buffer_length = 0; 
@@ -68,13 +101,25 @@ int main(void) {
             continue;
         }
 
-        if (strcmp(input_buffer->buffer, ".exit") == 0) {
-            return(1);
+        if (input_buffer->buffer[0] == '.') {
+            switch(eval_meta_command(input_buffer)) {
+                case(META_COMMAND_SUCCESS):
+                    continue;
+                case(META_COMMAND_UNRECOGNIZED_COMMAND):
+                    printf("Unrecognized meta command: %s \n", input_buffer->buffer);
+                    continue;
+            }
         }
-
-        else {
-            printf("unrecognized command : %s \n", input_buffer->buffer);
+        Statement statement;
+        switch(prepare_statement(input_buffer, &statement)) {
+            case(PREPARE_COMMAND_SUCCESS):
+                break;
+            case(PREPARE_COMMAND_UNRECOGNIZED_STATEMENT):
+                printf("Unrecognized command detected: %s \n", input_buffer->buffer);
+                continue;
         }
+        execute_statement(&statement);
+        printf("Executed statement\n");
     }
 
     return (0);
