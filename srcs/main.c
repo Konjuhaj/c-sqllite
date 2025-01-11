@@ -25,16 +25,6 @@ void print_prompt() {
     printf("db> ");
 }
 
-MetaCommandReult eval_meta_command(InputBuffer* input_buffer) {
-    if (strcmp(input_buffer->buffer, ".exit") == 0) {
-        close_input_buffer(input_buffer);
-        exit(1);
-    }
-    else {
-        return META_COMMAND_UNRECOGNIZED_COMMAND;
-    }
-}
-
 void serialize(Row* src, void* dst) {
     memcpy(dst + ID_OFFSET, &(src->id), ID_SIZE);
     memcpy(dst + USERNAME_OFFSET, &(src->username), USERNAME_SIZE);
@@ -61,7 +51,23 @@ void deserialize(void* src, Row* dst) {
 
 //TODO: Add function to allocate new table
 
+Table*  new_table() {
+    Table *table = malloc(sizeof(Table));
+
+    for (int i = 0; i <= MAX_PAGES_PER_TABLE; i++) {
+        table->pages[i] = NULL;
+    }
+    table->number_of_rows = 0;
+    return table;
+}
+
 //TODO: Add function to free table
+void free_table(Table* table) {
+    for (int i = 0; i <= MAX_PAGES_PER_TABLE; i++) {
+        free(table->pages[i]);
+    }
+    free(table);
+}
 
 //Refactor solution and put functions to their own files
 
@@ -70,7 +76,7 @@ PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement)
         statement->type = STATEMENT_INSERT;
         int args_read_in = sscanf(input_buffer->buffer, "INSERT %d %s %s",
              &(statement->row_to_insert.id), statement->row_to_insert.username, statement->row_to_insert.email);
-        if (args_read_in > 3) {
+        if (args_read_in != 3) {
             return (PREPARE_COMMAND_SYNTAX_ERROR);
         }
         return (PREPARE_COMMAND_SUCCESS);
@@ -93,9 +99,22 @@ void execute_statement(Statement* statement) { // Should also take tabl
     }
 }
 
+
+MetaCommandReult eval_meta_command(InputBuffer* input_buffer, Table* table) {
+    if (strcmp(input_buffer->buffer, ".exit") == 0) {
+        close_input_buffer(input_buffer);
+        free_table(table);
+        exit(1);
+    }
+    else {
+        return META_COMMAND_UNRECOGNIZED_COMMAND;
+    }
+}
+
 int main(void) {
     InputBuffer* input_buffer = new_input_buffer();
     input_buffer->buffer_length = 0; 
+    Table* table = new_table();
 
     while (true) {
         print_prompt();
@@ -106,7 +125,7 @@ int main(void) {
         }
 
         if (input_buffer->buffer[0] == '.') {
-            switch(eval_meta_command(input_buffer)) {
+            switch(eval_meta_command(input_buffer, table)) {
                 case(META_COMMAND_SUCCESS):
                     continue;
                 case(META_COMMAND_UNRECOGNIZED_COMMAND):
@@ -120,6 +139,7 @@ int main(void) {
                 break;
             case(PREPARE_COMMAND_SYNTAX_ERROR):
                 printf("Syntax error: %s \n", input_buffer->buffer);
+                break;
             case(PREPARE_COMMAND_UNRECOGNIZED_STATEMENT):
                 printf("Unrecognized command detected: %s \n", input_buffer->buffer);
                 continue;
