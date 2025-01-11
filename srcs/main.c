@@ -46,14 +46,11 @@ void deserialize(void* src, Row* dst) {
     memcpy(&(dst->username), src + USERNAME_OFFSET, USERNAME_SIZE);
     memcpy(&(dst->email), src + EMAIL_OFFSET, EMAIL_SIZE);
 }
-//Add deserialize function
-    // copy from void source to Row* destination
-    // move source based on off set and copy size amount
-
 
 PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement) {
     if (strncmp(input_buffer->buffer, "INSERT", 6) == 0) {
         statement->type = STATEMENT_INSERT;
+
         //Add logic to read three arguments
         //Add logic to check if there are more than tree arguments
         return (PREPARE_COMMAND_SUCCESS);
@@ -101,6 +98,8 @@ int main(void) {
         switch(prepare_statement(input_buffer, &statement)) {
             case(PREPARE_COMMAND_SUCCESS):
                 break;
+            case(PREPARE_COMMAND_SYNTAX_ERROR):
+                printf("Syntax error: %s \n", input_buffer->buffer);
             case(PREPARE_COMMAND_UNRECOGNIZED_STATEMENT):
                 printf("Unrecognized command detected: %s \n", input_buffer->buffer);
                 continue;
