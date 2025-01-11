@@ -63,6 +63,8 @@ void deserialize(void* src, Row* dst) {
 
 //TODO: Add function to free table
 
+//Refactor solution and put functions to their own files
+
 PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement) {
     if (strncmp(input_buffer->buffer, "INSERT", 6) == 0) {
         statement->type = STATEMENT_INSERT;
