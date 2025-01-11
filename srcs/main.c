@@ -50,9 +50,11 @@ void deserialize(void* src, Row* dst) {
 PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement) {
     if (strncmp(input_buffer->buffer, "INSERT", 6) == 0) {
         statement->type = STATEMENT_INSERT;
-
-        //Add logic to read three arguments
-        //Add logic to check if there are more than tree arguments
+        int args_read_in = sscanf(input_buffer->buffer, "INSERT %d %s %s",
+             &(statement->row_to_insert.id), &(statement->row_to_insert.username), &(statement->row_to_insert.email));
+        if (args_read_in > 3) {
+            return (PREPARE_COMMAND_SYNTAX_ERROR);
+        }
         return (PREPARE_COMMAND_SUCCESS);
     }
     else if (strncmp(input_buffer->buffer, "SELECT", 6) == 0) {
