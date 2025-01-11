@@ -35,10 +35,17 @@ MetaCommandReult eval_meta_command(InputBuffer* input_buffer) {
     }
 }
 
-//Add serialize function
-    // copy from Row* source to void destination
-    // move destination based on off set and copy size amount
+void serialize(Row* src, void* dst) {
+    memcpy(dst + ID_OFFSET, &(src->id), ID_SIZE);
+    memcpy(dst + USERNAME_OFFSET, &(src->username), USERNAME_SIZE);
+    memcpy(dst + EMAIL_OFFSET, &(src->email), EMAIL_SIZE);
+}
 
+void deserialize(void* src, Row* dst) {
+    memcpy(&(dst->id), src + ID_OFFSET, ID_SIZE);
+    memcpy(&(dst->username), src + USERNAME_OFFSET, USERNAME_SIZE);
+    memcpy(&(dst->email), src + EMAIL_OFFSET, EMAIL_SIZE);
+}
 //Add deserialize function
     // copy from void source to Row* destination
     // move source based on off set and copy size amount
