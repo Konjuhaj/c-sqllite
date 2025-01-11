@@ -47,6 +47,22 @@ void deserialize(void* src, Row* dst) {
     memcpy(&(dst->email), src + EMAIL_OFFSET, EMAIL_SIZE);
 }
 
+//TODO: Add function to determine row slot where to insert the data
+//  Takes a table and row number 
+//  returns the page with the offset on where to a insert data. Might require a malloc
+
+
+//TODO: Add function to insert data into the table
+//  use row_to_insert
+//  call previous func to determine where to insert the data to. Use the serialize funcs to copy to data
+
+//TODO: Add function to read data from the table.
+//  Loops through the table and prints all the rows
+
+//TODO: Add function to allocate new table
+
+//TODO: Add function to free table
+
 PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement) {
     if (strncmp(input_buffer->buffer, "INSERT", 6) == 0) {
         statement->type = STATEMENT_INSERT;
@@ -64,13 +80,13 @@ PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement)
     return(PREPARE_COMMAND_UNRECOGNIZED_STATEMENT);
 }
 
-void execute_statement(Statement* statement) {
+void execute_statement(Statement* statement) { // Should also take tabl
     switch(statement->type) {
         case (STATEMENT_INSERT):
-            printf("INSERT STATEMENT LOGIC HERE! \n");
+            printf("INSERT STATEMENT LOGIC HERE! \n"); //Replace with return and insert function call
             break;
         case (STATEMENT_SELECT):
-            printf("SELECT STATEMENT LOGIC HERE! \n");
+            printf("SELECT STATEMENT LOGIC HERE! \n"); //Replace with return and select function call
             break;
     }
 }
