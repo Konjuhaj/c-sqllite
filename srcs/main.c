@@ -42,18 +42,22 @@ void deserialize(void* src, Row* dst) {
 //  returns the page with the offset on where to a insert data. Might require a malloc
 
 void*   row_slot(Table* table, uint32_t row_number) {
-    uint32_t page_num = row_number / MAX_ROWS_PER_PAGE
+    uint32_t page_num = row_number / MAX_ROWS_PER_PAGE;
     void* page = table->pages[page_num];
 
     if (page == NULL) {
         page = malloc(PAGE_SIZE);
     }
 
-    return page;
+    //TODO : READ More on these :
+    uint32_t row_offset = row_number % MAX_ROWS_PER_PAGE;
+    uint32_t byte_offset = row_offset * ROW_SIZE;
+
+    return page + byte_offset;
 }
 
 void    insert_row_to_table(Table* table, Statement* statement) {
-    Page* page = row_slot(table, table->number_of_rows);
+    void* page = row_slot(table, table->number_of_rows);
 
     serialize(&(statement->row_to_insert), page);
 }
@@ -62,7 +66,7 @@ void select_from_table(Table* table) {
     Row* row = void*;
     int i = 0;
     while (true) {
-        row = deserialize(&(table->pages[i]), row);
+        deserialize(&(table->pages[i]), row);
         if (row == NULL) {
             break;
         }
@@ -170,7 +174,7 @@ int main(void) {
                 printf("Unrecognized command detected: %s \n", input_buffer->buffer);
                 continue;
         }
-        execute_statement(&statement);
+        execute_statement(&statement, table);
         printf("Executed statement\n");
     }
 
