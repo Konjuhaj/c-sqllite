@@ -1,5 +1,7 @@
 #include "../headers/headers.h"
 
+//TODO : REFACTOR Solution to their own files
+
 InputBuffer* new_input_buffer() {
     InputBuffer* input_buffer = malloc(sizeof(InputBuffer));
     input_buffer->buffer = NULL;
@@ -37,10 +39,6 @@ void deserialize(void* src, Row* dst) {
     memcpy(&(dst->email), src + EMAIL_OFFSET, EMAIL_SIZE);
 }
 
-//TODO: Add function to determine row slot where to insert the data
-//  Takes a table and row number 
-//  returns the page with the offset on where to a insert data. Might require a malloc
-
 void*   row_slot(Table* table, uint32_t row_number) {
     uint32_t page_num = row_number / MAX_ROWS_PER_PAGE;
     void* page = table->pages[page_num];
@@ -75,10 +73,6 @@ void select_from_table(Table* table) {
     }
 }
 
-//TODO: Add function to read data from the table.
-
-//TODO: Add function to allocate new table
-
 Table*  new_table() {
     Table *table = malloc(sizeof(Table));
 
@@ -89,15 +83,12 @@ Table*  new_table() {
     return table;
 }
 
-//TODO: Add function to free table
 void free_table(Table* table) {
     for (int i = 0; i <= MAX_PAGES_PER_TABLE; i++) {
         free(table->pages[i]);
     }
     free(table);
 }
-
-//Refactor solution and put functions to their own files
 
 PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement) {
     if (strncmp(input_buffer->buffer, "INSERT", 6) == 0) {
@@ -116,7 +107,7 @@ PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement)
     return(PREPARE_COMMAND_UNRECOGNIZED_STATEMENT);
 }
 
-void execute_statement(Statement* statement, Table* table) { // Should also take tabl
+void execute_statement(Statement* statement, Table* table) {
     switch(statement->type) {
         case (STATEMENT_INSERT):
             insert_row_to_table(table, statement);
