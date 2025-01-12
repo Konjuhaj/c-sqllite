@@ -46,7 +46,7 @@ void*   row_slot(Table* table, uint32_t row_number) {
     void* page = table->pages[page_num];
 
     if (page == NULL) {
-        page = malloc(PAGE_SIZE);
+        page = table->pages[page_num] = malloc(PAGE_SIZE);
     }
 
     //TODO : READ More on these :
@@ -58,24 +58,24 @@ void*   row_slot(Table* table, uint32_t row_number) {
 
 void    insert_row_to_table(Table* table, Statement* statement) {
     void* page = row_slot(table, table->number_of_rows);
-
     serialize(&(statement->row_to_insert), page);
+    table->number_of_rows += 1;
+}
+
+void print_row(Row* row) {
+    printf("(%d %s %s) \n", row->id, row->username, row->email);
 }
 
 void select_from_table(Table* table) {
-    Row* row = void*;
-    int i = 0;
-    while (true) {
-        deserialize(&(table->pages[i]), row);
-        if (row == NULL) {
-            break;
-        }
-        printf(&row);
+    Row row;
+
+    for (uint32_t i = 0; i < table->number_of_rows; i++) {
+        deserialize(row_slot(table, i), &row);
+        print_row(&row);
     }
 }
 
 //TODO: Add function to read data from the table.
-//  Loops through the table and prints all the rows
 
 //TODO: Add function to allocate new table
 
@@ -119,11 +119,9 @@ PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement)
 void execute_statement(Statement* statement, Table* table) { // Should also take tabl
     switch(statement->type) {
         case (STATEMENT_INSERT):
-            printf("INSERT STATEMENT LOGIC HERE! \n"); //Replace with return and insert function call
             insert_row_to_table(table, statement);
             break;
         case (STATEMENT_SELECT):
-            printf("SELECT STATEMENT LOGIC HERE! \n"); //Replace with return and select function call
             select_from_table(table);
             break;
     }
