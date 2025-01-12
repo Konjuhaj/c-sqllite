@@ -41,10 +41,34 @@ void deserialize(void* src, Row* dst) {
 //  Takes a table and row number 
 //  returns the page with the offset on where to a insert data. Might require a malloc
 
+void*   row_slot(Table* table, uint32_t row_number) {
+    uint32_t page_num = row_number / MAX_ROWS_PER_PAGE
+    void* page = table->pages[page_num];
 
-//TODO: Add function to insert data into the table
-//  use row_to_insert
-//  call previous func to determine where to insert the data to. Use the serialize funcs to copy to data
+    if (page == NULL) {
+        page = malloc(PAGE_SIZE);
+    }
+
+    return page;
+}
+
+void    insert_row_to_table(Table* table, Statement* statement) {
+    Page* page = row_slot(table, table->number_of_rows);
+
+    serialize(&(statement->row_to_insert), page);
+}
+
+void select_from_table(Table* table) {
+    Row* row = void*;
+    int i = 0;
+    while (true) {
+        row = deserialize(&(table->pages[i]), row);
+        if (row == NULL) {
+            break;
+        }
+        printf(&row);
+    }
+}
 
 //TODO: Add function to read data from the table.
 //  Loops through the table and prints all the rows
@@ -88,13 +112,15 @@ PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement)
     return(PREPARE_COMMAND_UNRECOGNIZED_STATEMENT);
 }
 
-void execute_statement(Statement* statement) { // Should also take tabl
+void execute_statement(Statement* statement, Table* table) { // Should also take tabl
     switch(statement->type) {
         case (STATEMENT_INSERT):
             printf("INSERT STATEMENT LOGIC HERE! \n"); //Replace with return and insert function call
+            insert_row_to_table(table, statement);
             break;
         case (STATEMENT_SELECT):
             printf("SELECT STATEMENT LOGIC HERE! \n"); //Replace with return and select function call
+            select_from_table(table);
             break;
     }
 }
