@@ -7,6 +7,11 @@ fi
 
 DATABASE="db"
 
+META_TEST_FILE="meta_test.txt"
+META_TEST_RESULT="test_files/meta_test_result.txt"
+
+INSERT_TEST_FILE="insert_test.txt"
+INSERT_TEST_RESULT="test_files/insert_test_result.txt"
 
 compile_program() {
     echo "...Compiling database"
@@ -16,19 +21,47 @@ compile_program() {
 
 
 meta_command_test() {
-    output=$(echo ".exit" | ./$DATABASE)
+    echo ".exit" | ./$DATABASE > $META_TEST_FILE
     test_name="META COMMAND TEST"
 
- if diff <(echo "$output") "" >/dev/null; then
+ if diff "$META_TEST_FILE" $META_TEST_RESULT >/dev/null; then
         echo "✓ Test passed: $test_name"
         return 0
     else
         echo "✗ Test failed: $test_name"
         echo "Expected output:"
+        cat "$META_TEST_RESULT"
         echo "Actual output:"
-        echo "$output"
+        cat "$META_TEST_FILE"
         return 1
     fi
 }
 
-meta_command_test()
+
+insert_command_test() {
+    echo "INSERT  1 besnik test
+.exit" | ./$DATABASE > $INSERT_TEST_FILE
+    test_name="INSERT COMMAND TEST"
+
+ if diff "$INSERT_TEST_FILE" $INSERT_TEST_RESULT >/dev/null; then
+        echo "✓ Test passed: $test_name"
+        return 0
+    else
+        echo "✗ Test failed: $test_name"
+        echo "Expected output:"
+        cat "$INSERT_TEST_RESULT"
+        echo "Actual output:"
+        cat "$INSERT_TEST_FILE"
+        return 1
+    fi
+}
+
+
+
+main () {
+    compile_program
+    meta_command_test
+    insert_command_test
+}
+
+main
