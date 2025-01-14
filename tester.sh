@@ -13,6 +13,9 @@ META_TEST_RESULT="test_files/meta_test_result.txt"
 INSERT_TEST_FILE="insert_test.txt"
 INSERT_TEST_RESULT="test_files/insert_test_result.txt"
 
+SELECT_TEST_FILE="select_test.txt"
+SELECT_TEST_RESULT="test_files/select_test_result.txt"
+
 compile_program() {
     echo "...Compiling database"
     make re
@@ -56,12 +59,32 @@ insert_command_test() {
     fi
 }
 
+select_command_test() {
+    echo "INSERT 1 besnik besnik.konjuhaj@gmail.com
+SELECT
+.exit" | ./$DATABASE > $SELECT_TEST_FILE
+    test_name="SELECT COMMAND TEST"
+
+ if diff "$SELECT_TEST_FILE" $SELECT_TEST_RESULT >/dev/null; then
+        echo "✓ Test passed: $test_name"
+        return 0
+    else
+        echo "✗ Test failed: $test_name"
+        echo "Expected output:"
+        cat "$SELECT_TEST_RESULT"
+        echo "Actual output:"
+        cat "$SELECT_TEST_FILE"
+        return 1
+    fi
+}
+
 
 
 main () {
     compile_program
     meta_command_test
     insert_command_test
+    select_command_test
 }
 
 main
