@@ -1,9 +1,9 @@
 #!/bin/bash
 
-if [ $# -lt 1 ]; then
-    echo "Usage: ./test.sh operations"
-    exit 1
-fi
+# if [ $# -lt 1 ]; then
+#     echo "Usage: ./test.sh operations"
+#     exit 1
+# fi
 
 DATABASE="db"
 
@@ -78,6 +78,11 @@ SELECT
     fi
 }
 
+cleanup() {
+    make clean
+    rm -rf $SELECT_TEST_FILE $META_TEST_FILE $INSERT_TEST_FILE
+}
+
 
 
 main () {
@@ -85,6 +90,14 @@ main () {
     meta_command_test
     insert_command_test
     select_command_test
+    
+    case $TEST_TYPE in
+        "clean")
+            make clean
+            ;;
+    esac
+    
+    cleanup
 }
 
 main
