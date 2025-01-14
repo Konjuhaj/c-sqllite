@@ -15,8 +15,8 @@ struct InputBuffer_t {
 
 typedef struct {
     int id;
-    char username[USERNAME_LENGTH];
-    char email[EMAIL_LENGTH];
+    char username[USERNAME_LENGTH + 1]; 
+    char email[EMAIL_LENGTH + 1];
 } Row;
 
 typedef struct InputBuffer_t InputBuffer;
