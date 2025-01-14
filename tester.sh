@@ -22,6 +22,11 @@ compile_program() {
     echo "...Compilation complete"
 }
 
+# ADD TEST FOR MAX R0WS PER PAGE
+# ADD TEST FOR MAX PAGES PER TABLE
+# ADD TEST TO EXCEED FIELD LENGTHS
+# ADD TEST LONG EMAIL AND NAME
+
 
 meta_command_test() {
     echo ".exit" | ./$DATABASE > $META_TEST_FILE

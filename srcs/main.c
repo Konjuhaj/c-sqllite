@@ -55,6 +55,8 @@ void*   row_slot(Table* table, uint32_t row_number) {
 }
 
 void    insert_row_to_table(Table* table, Statement* statement) {
+    // TODO : CHECK TABLE ROW COUNTS IF THERE ARE ALREADY 100. THEN THROW HIM OUT
+
     void* page = row_slot(table, table->number_of_rows);
     serialize(&(statement->row_to_insert), page);
     table->number_of_rows += 1;
