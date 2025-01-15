@@ -1,4 +1,4 @@
-#include "../headers/headers.h"
+#include "../headers/functions.h"
 
 //TODO : REFACTOR Solution to their own files
 
@@ -26,14 +26,6 @@ InputBuffer* read_input(InputBuffer* input_buffer) {
     return input_buffer;
 }
 
-void close_input_buffer(InputBuffer* input_buffer) {
-    free(input_buffer->buffer);
-    free(input_buffer);
-}
-
-void print_prompt() {
-    printf("db> ");
-}
 
 void serialize(Row* src, void* dst) {
     memcpy(dst + ID_OFFSET, &(src->id), ID_SIZE);
