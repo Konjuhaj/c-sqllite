@@ -11,11 +11,19 @@ InputBuffer* new_input_buffer() {
     return input_buffer;
 }
 
-void read_input(InputBuffer* input_buffer) {
+InputBuffer* read_input(InputBuffer* input_buffer) {
+    if (input_buffer->buffer != NULL) {
+        InputBuffer* new_buffer = new_input_buffer();
+        new_buffer->prev = input_buffer;
+        input_buffer = new_buffer;
+    }
+
     ssize_t input_read = getline(&(input_buffer->buffer), &(input_buffer->buffer_length), stdin);
 
     input_buffer->input_length = input_read - 1;
     input_buffer->buffer[input_read - 1] = 0;
+
+    return input_buffer;
 }
 
 void close_input_buffer(InputBuffer* input_buffer) {
@@ -54,12 +62,17 @@ void*   row_slot(Table* table, uint32_t row_number) {
     return page + byte_offset;
 }
 
-void    insert_row_to_table(Table* table, Statement* statement) {
-    // TODO : CHECK TABLE ROW COUNTS IF THERE ARE ALREADY 100. THEN THROW HIM OUT
+ExecuteResult    insert_row_to_table(Table* table, Statement* statement) {
+    printf("%d", MAX_ROWS_IN_TABLE);
+    if (table->number_of_rows > MAX_ROWS_IN_TABLE) {
+        return EXECUTE_TABLE_FULL;
+    }
 
     void* page = row_slot(table, table->number_of_rows);
     serialize(&(statement->row_to_insert), page);
     table->number_of_rows += 1;
+
+    return EXECUTE_SUCCESS;
 }
 
 void print_row(Row* row) {
@@ -132,6 +145,28 @@ MetaCommandReult eval_meta_command(InputBuffer* input_buffer, Table* table) {
     }
 }
 
+InputBuffer* get_previous_input(InputBuffer* input_buffer) {
+    InputBuffer* previous_buffer;
+
+    while (true) {
+        print_prompt();
+        if (input_buffer->prev != NULL) {
+            previous_buffer = input_buffer->prev;
+            close_input_buffer(input_buffer);
+            printf("%s", previous_buffer->buffer);
+            return previous_buffer;
+        }
+        return input_buffer;
+
+        // if(input_buffer->buffer[0] == '\33' ) { // TODO: Recursive back tracking 
+        //     get_previous_input(input_buffer);
+
+        //     continue;
+        // }
+
+    }
+}
+
 int main(void) {
     InputBuffer* input_buffer = new_input_buffer();
     input_buffer->buffer_length = 0; 
@@ -139,10 +174,14 @@ int main(void) {
 
     while (true) {
         print_prompt();
-        read_input(input_buffer);
+        input_buffer = read_input(input_buffer);
         
         if(input_buffer->input_length == 0) {
             continue;
+        }
+
+        if(input_buffer->buffer[0] == UP_ARROW_CHARATER ) {
+            input_buffer = get_previous_input(input_buffer);
         }
 
         if (input_buffer->buffer[0] == '.') {

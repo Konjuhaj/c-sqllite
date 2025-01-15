@@ -7,11 +7,12 @@
 #define EMAIL_LENGTH 255
 
 
-struct InputBuffer_t {
+typedef struct InputBuffer_s {
     char* buffer;
     size_t buffer_length;
     size_t input_length;
-};
+    void* prev;
+} InputBuffer;
 
 typedef struct {
     int id;
@@ -19,7 +20,6 @@ typedef struct {
     char email[EMAIL_LENGTH + 1];
 } Row;
 
-typedef struct InputBuffer_t InputBuffer;
 
 typedef enum {
     META_COMMAND_SUCCESS,
@@ -37,6 +37,11 @@ typedef enum {
     STATEMENT_SELECT
 } StatementType;
 
+typedef enum {
+    EXECUTE_SUCCESS,
+    EXECUTE_TABLE_FULL
+} ExecuteResult;
+
 typedef struct {
     StatementType type;
     Row row_to_insert;
@@ -45,6 +50,10 @@ typedef struct {
 
 //Function to get the size of an attribute in a struct without mallocing the struct
 #define size_of_attribute(Struct, Attribute) sizeof(((Struct*)0)->Attribute)
+
+//Type defs for ANSI characters
+const char* CLEAR_SCREEN_ANSI = "\e[1;1H\e[2J";
+const char UP_ARROW_CHARATER = '\33';
 
 //define constants for table schema; 
 const uint32_t ID_SIZE = size_of_attribute(Row, id);
