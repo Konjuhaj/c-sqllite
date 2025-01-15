@@ -196,8 +196,15 @@ int main(void) {
                 printf("Unrecognized command detected: %s \n", input_buffer->buffer);
                 continue;
         }
-        execute_statement(&statement, table);
-        printf("Executed statement\n");
+        switch(execute_statement(&statement, table)) {
+            case(EXECUTE_SUCCESS):
+                printf("Executed");
+                continue;
+            case(EXECUTE_TABLE_FULL):
+                printf("Execute failure: Table full");
+                continue;
+        };
+        
     }
 
     return (0);
