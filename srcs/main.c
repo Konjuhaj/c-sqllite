@@ -2,6 +2,32 @@
 
 //TODO : REFACTOR Solution to their own files
 
+//Type defs for ANSI characters
+const char* CLEAR_SCREEN_ANSI = "\e[1;1H\e[2J";
+const char UP_ARROW_CHARATER = '\33';
+
+//define constants for table schema; 
+const uint32_t ID_SIZE = size_of_attribute(Row, id);
+const uint32_t USERNAME_SIZE = size_of_attribute(Row, username);
+const uint32_t EMAIL_SIZE = size_of_attribute(Row, email);
+const uint32_t ID_OFFSET = 0;
+const uint32_t USERNAME_OFFSET = ID_SIZE + ID_OFFSET;
+const uint32_t EMAIL_OFFSET = USERNAME_SIZE + USERNAME_OFFSET;
+const uint32_t ROW_SIZE = ID_SIZE + USERNAME_SIZE + EMAIL_SIZE;
+
+
+// Define constants for table
+const uint32_t PAGE_SIZE = 4096;
+#define MAX_PAGES_PER_TABLE 100
+const uint32_t MAX_ROWS_PER_PAGE = PAGE_SIZE / ROW_SIZE;
+const uint32_t MAX_ROWS_IN_TABLE = MAX_ROWS_PER_PAGE * MAX_PAGES_PER_TABLE;
+
+typedef struct {
+    uint32_t number_of_rows;
+    void*   pages[MAX_PAGES_PER_TABLE];
+} Table;
+
+
 InputBuffer* new_input_buffer() {
     InputBuffer* input_buffer = malloc(sizeof(InputBuffer));
     input_buffer->buffer = NULL;
@@ -55,7 +81,6 @@ void*   row_slot(Table* table, uint32_t row_number) {
 }
 
 ExecuteResult    insert_row_to_table(Table* table, Statement* statement) {
-    printf("%d", MAX_ROWS_IN_TABLE);
     if (table->number_of_rows > MAX_ROWS_IN_TABLE) {
         return EXECUTE_TABLE_FULL;
     }
@@ -200,10 +225,10 @@ int main(void) {
         }
         switch(execute_statement(&statement, table)) {
             case(EXECUTE_SUCCESS):
-                printf("Executed");
+                printf("Executed statement\n");
                 continue;
             case(EXECUTE_TABLE_FULL):
-                printf("Execute failure: Table full");
+                printf("Execute failure: Table full \n");
                 continue;
         };
     }
