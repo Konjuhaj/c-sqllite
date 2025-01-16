@@ -65,18 +65,21 @@ insert_command_test() {
 }
 
 insert_max_rows_test() {
-    output=$(cat "test_files/insert_max_rows_input.txt" | ./$DATABASE)
     test_name="MAX INSERT TEST"
+    test_file_input=test_files/insert_max_rows_input.txt
+    test_file_output=test_files/insert_max_rows_output.txt
+    test_file_result=test_files/insert_max_rows_result.txt
 
-    if diff <(echo "output") "test_files/insert_max_rows_result.txt"> /dev/null; then
+    cat "$test_file_input" | ./$DATABASE > $test_file_output
+    if diff "$test_file_output" "$test_file_result"> /dev/null; then
         echo "✓ Test passed: $test_name"
         return 0
     else
         echo "✗ Test failed: $test_name"
         echo "Expected output:"
-        cat "test_files/insert_max_rows_result.txt"
+        echo "~$test_file_result"
         echo "Actual output:"
-        echo "$output"
+        echo "~$test_file_output"
         return 1
     fi
 
