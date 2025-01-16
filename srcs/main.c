@@ -1,4 +1,4 @@
-#include "../headers/functions.h"
+#include "../headers/headers.h"
 
 //TODO : REFACTOR Solution to their own files
 
@@ -71,13 +71,15 @@ void print_row(Row* row) {
     printf("(%d %s %s) \n", row->id, row->username, row->email);
 }
 
-void select_from_table(Table* table) {
+ExecuteResult select_from_table(Table* table) {
     Row row;
 
     for (uint32_t i = 0; i < table->number_of_rows; i++) {
         deserialize(row_slot(table, i), &row);
         print_row(&row);
     }
+
+    return EXECUTE_SUCCESS;
 }
 
 Table*  new_table() {
@@ -114,13 +116,13 @@ PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement)
     return(PREPARE_COMMAND_UNRECOGNIZED_STATEMENT);
 }
 
-void execute_statement(Statement* statement, Table* table) {
+ExecuteResult execute_statement(Statement* statement, Table* table) {
     switch(statement->type) {
         case (STATEMENT_INSERT):
-            insert_row_to_table(table, statement);
+            return insert_row_to_table(table, statement);
             break;
         case (STATEMENT_SELECT):
-            select_from_table(table);
+            return select_from_table(table);
             break;
     }
 }
@@ -204,7 +206,6 @@ int main(void) {
                 printf("Execute failure: Table full");
                 continue;
         };
-        
     }
 
     return (0);

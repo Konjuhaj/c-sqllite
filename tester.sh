@@ -64,6 +64,10 @@ insert_command_test() {
     fi
 }
 
+insert_max_rows_test() {
+    
+}
+
 select_command_test() {
     echo "INSERT 1 besnik besnik.konjuhaj@gmail.com
 SELECT
