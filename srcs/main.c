@@ -124,6 +124,11 @@ void free_table(Table* table) {
     free(table);
 }
 
+// create function to validate incoming data using strtok
+// confirm input doesn't overflow the specified column restricted length
+// Parse id with atoi function
+
+
 PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement) {
     if (strncmp(input_buffer->buffer, "INSERT", 6) == 0) {
         statement->type = STATEMENT_INSERT;
