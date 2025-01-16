@@ -64,9 +64,24 @@ insert_command_test() {
     fi
 }
 
-# insert_max_rows_test() {
+insert_max_rows_test() {
+    output=$(cat "test_files/insert_max_rows_input.txt" | ./$DATABASE)
+    test_name="MAX INSERT TEST"
 
-# }
+    if diff <(echo "output") "test_files/insert_max_rows_result.txt"> /dev/null; then
+        echo "✓ Test passed: $test_name"
+        return 0
+    else
+        echo "✗ Test failed: $test_name"
+        echo "Expected output:"
+        cat "test_files/insert_max_rows_result.txt"
+        echo "Actual output:"
+        echo "$output"
+        return 1
+    fi
+
+
+}
 
 select_command_test() {
     echo "INSERT 1 besnik besnik.konjuhaj@gmail.com
@@ -93,12 +108,12 @@ cleanup() {
 }
 
 
-
 main () {
     compile_program
     meta_command_test
     insert_command_test
     select_command_test
+    insert_max_rows_test
     
     case $TEST_TYPE in
         "clean")
