@@ -5,6 +5,7 @@
 
 #define USERNAME_LENGTH 32
 #define EMAIL_LENGTH 255
+#define MAX_PAGES_PER_TABLE 100
 
 typedef struct InputBuffer_s {
     char* buffer;
@@ -48,6 +49,11 @@ typedef struct {
     Row row_to_insert;
 } Statement;
 
+typedef struct {
+    uint32_t number_of_rows;
+    void*   pages[MAX_PAGES_PER_TABLE];
+} Table;
+
 
 //Function to get the size of an attribute in a struct without mallocing the struct
 #define size_of_attribute(Struct, Attribute) sizeof(((Struct*)0)->Attribute)
@@ -59,6 +65,8 @@ void close_input_buffer(InputBuffer* input_buffer);
 
 void print_prompt();
 
+void free_table(Table* table);
+
 
 // PROCESSOR FUNCTIONS
 
@@ -66,4 +74,4 @@ PrepareResult validate_statement(InputBuffer* input_buffer, Statement* statement
 
 PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement);
 
-MetaCommandReult eval_meta_command(InputBuffer* input_buffer, Table* table)
+MetaCommandReult eval_meta_command(InputBuffer* input_buffer, Table* table);

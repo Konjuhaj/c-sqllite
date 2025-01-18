@@ -15,17 +15,10 @@ const uint32_t USERNAME_OFFSET = ID_SIZE + ID_OFFSET;
 const uint32_t EMAIL_OFFSET = USERNAME_SIZE + USERNAME_OFFSET;
 const uint32_t ROW_SIZE = ID_SIZE + USERNAME_SIZE + EMAIL_SIZE;
 
-
 // Define constants for table
 const uint32_t PAGE_SIZE = 4096;
-#define MAX_PAGES_PER_TABLE 100
 const uint32_t MAX_ROWS_PER_PAGE = PAGE_SIZE / ROW_SIZE;
 const uint32_t MAX_ROWS_IN_TABLE = MAX_ROWS_PER_PAGE * MAX_PAGES_PER_TABLE;
-
-typedef struct {
-    uint32_t number_of_rows;
-    void*   pages[MAX_PAGES_PER_TABLE];
-} Table;
 
 
 InputBuffer* new_input_buffer() {
