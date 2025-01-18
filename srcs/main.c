@@ -124,20 +124,28 @@ void free_table(Table* table) {
     free(table);
 }
 
-// create function to validate incoming data using strtok
-// confirm input doesn't overflow the specified column restricted length
-// Parse id with atoi function
+PrepareResult validate_statement(InputBuffer* input_buffer, Statement* statement) {
+    strtok(input_buffer->buffer, " ");
 
-PrepareResult validate_statement(InputBuffer* input_buffer) {
-    char* first = strtok(input_buffer->buffer, " ");
-    printf("first %s \n", first );
+    char* id_value = strtok(NULL, " ");
+    char* username = strtok(NULL, " ");
+    char* email = strtok(NULL, " ");
+    int id = atoi(id_value);
+    if (id_value == NULL || email == NULL || username == NULL) {
+        return (PREPARE_COMMAND_SYNTAX_ERROR);
+    }
 
-    char* second = strtok(NULL, " ");
-    printf("second %s \n", second);
+    if (id < 0 ) {
+        return (PREPARE_COMMAND_NEGATIVE_NUMBER_ERROR);
+    }
 
-    char* third = strtok(NULL, " ");
-    printf("third %s \n", third);
-   
+    if (strlen(username) > USERNAME_LENGTH || strlen(email) > EMAIL_LENGTH) {
+        return (PREPARE_COMMAND_STRING_OVERFLOW_ERROR);
+    }
+    strcpy(statement->row_to_insert.username, username);
+    strcpy(statement->row_to_insert.email, email);
+    statement->row_to_insert.id = id;
+
    return PREPARE_COMMAND_SUCCESS;
 }
 
@@ -145,13 +153,7 @@ PrepareResult validate_statement(InputBuffer* input_buffer) {
 PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement) {
     if (strncmp(input_buffer->buffer, "INSERT", 6) == 0) {
         statement->type = STATEMENT_INSERT;
-        validate_statement(input_buffer);
-        int args_read_in = sscanf(input_buffer->buffer, "INSERT %d %s %s",
-             &(statement->row_to_insert.id), statement->row_to_insert.username, statement->row_to_insert.email);
-        if (args_read_in != 3) {
-            return (PREPARE_COMMAND_SYNTAX_ERROR);
-        }
-        return (PREPARE_COMMAND_SUCCESS);
+        return validate_statement(input_buffer, statement);
     }
     else if (strncmp(input_buffer->buffer, "SELECT", 6) == 0) {
         statement->type = STATEMENT_SELECT;
@@ -237,9 +239,15 @@ int main(void) {
                 break;
             case(PREPARE_COMMAND_SYNTAX_ERROR):
                 printf("Syntax error: %s \n", input_buffer->buffer);
-                break;
+                continue;
             case(PREPARE_COMMAND_UNRECOGNIZED_STATEMENT):
                 printf("Unrecognized command detected: %s \n", input_buffer->buffer);
+                continue;
+            case(PREPARE_COMMAND_NEGATIVE_NUMBER_ERROR):
+                printf("Invalid id value. Cannot be negative number: %s \n", input_buffer->buffer);
+                continue;
+            case(PREPARE_COMMAND_STRING_OVERFLOW_ERROR):
+                printf("Input values exceed column length \n");
                 continue;
         }
         switch(execute_statement(&statement, table)) {

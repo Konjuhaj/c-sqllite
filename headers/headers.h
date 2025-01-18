@@ -28,8 +28,8 @@ typedef enum {
 typedef enum {
     PREPARE_COMMAND_SUCCESS,
     PREPARE_COMMAND_UNRECOGNIZED_STATEMENT,
-// add new result for input overflow of column restrtiction
-// add new result for negativ id value
+    PREPARE_COMMAND_STRING_OVERFLOW_ERROR,
+    PREPARE_COMMAND_NEGATIVE_NUMBER_ERROR,
     PREPARE_COMMAND_SYNTAX_ERROR
 } PrepareResult;
 
