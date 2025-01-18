@@ -7,7 +7,7 @@
 #define EMAIL_LENGTH 255
 #define MAX_PAGES_PER_TABLE 100
 
-typedef struct InputBuffer_s {
+typedef struct {
     char* buffer;
     size_t buffer_length;
     size_t input_length;
