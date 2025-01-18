@@ -128,10 +128,24 @@ void free_table(Table* table) {
 // confirm input doesn't overflow the specified column restricted length
 // Parse id with atoi function
 
+PrepareResult validate_statement(InputBuffer* input_buffer) {
+    char* first = strtok(input_buffer->buffer, " ");
+    printf("first %s \n", first );
+
+    char* second = strtok(NULL, " ");
+    printf("second %s \n", second);
+
+    char* third = strtok(NULL, " ");
+    printf("third %s \n", third);
+   
+   return PREPARE_COMMAND_SUCCESS;
+}
+
 
 PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement) {
     if (strncmp(input_buffer->buffer, "INSERT", 6) == 0) {
         statement->type = STATEMENT_INSERT;
+        validate_statement(input_buffer);
         int args_read_in = sscanf(input_buffer->buffer, "INSERT %d %s %s",
              &(statement->row_to_insert.id), statement->row_to_insert.username, statement->row_to_insert.email);
         if (args_read_in != 3) {
