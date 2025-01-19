@@ -16,6 +16,9 @@ INSERT_TEST_RESULT="test_files/insert_test_result.txt"
 SELECT_TEST_FILE="select_test.txt"
 SELECT_TEST_RESULT="test_files/select_test_result.txt"
 
+PERSISTANCE_TEST_FILE="persistance_test.txt"
+PERSISTANCE_TEST_RESULT="test_files/persistance_test_result.txt"
+
 compile_program() {
     echo "...Compiling database"
     make re
@@ -103,6 +106,27 @@ SELECT
         cat "$SELECT_TEST_FILE"
         return 1
     fi
+}
+
+persistance_test() {
+    test_name="PERSISTANCE TEST"
+    echo "INSERT 1 besnik besnik.konjuhaj@gmail.com
+SELECT
+.exit" | ./$DATABASE
+
+
+    echo "SELECT
+.exit" | ./$DATABASE > 
+
+    if diff "$PERSISTANCE_TEST_FILE" $PERSISTANCE_TEST_RESULT > /dev/null; then
+        echo "✓ Test passed: $test_name"
+    else
+        echo "✗ Test failed: $test_name"
+        echo "Expected output:"
+        cat "$PERSISTANCE_TEST_FILE"
+        echo "Actual output:"
+        cat "$PERSISTANCE_TEST_RESULT"
+        return 1
 }
 
 cleanup() {
