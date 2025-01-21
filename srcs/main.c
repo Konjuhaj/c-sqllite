@@ -120,24 +120,13 @@ Pager* open_pager(char* filename) {
     off_t file_end = lseek(fd, 0, SEEK_END);
 
     for (int i = 0; i < MAX_PAGES_PER_TABLE; i++) {
-        pager->page[i] = NULL;
+        pager->pages[i] = NULL;
     }
     pager->fd = fd;
     pager->file_length = file_end;
     return pager;
 }
 
-// Add pager open function that opens a file with the following flags
-// - read/write mode
-// - Create if not exist 
-// - user wrtie permissions
-// - user read permissions 
-// MAN lseek, open 
-
-// Rename to open_db as table will be based on the db file
-// opening the database file
-// initializing a pager data structure
-// initializing a table data structure
 Table*  open_db(char* filename) { 
     Pager* pager = open_pager(filename);
     Table *table = malloc(sizeof(Table));
@@ -147,14 +136,24 @@ Table*  open_db(char* filename) {
     return table;
 }
 
-//Add function close_db
-// - Loops through pages and calls pager flush 
-//Add function pager_flush 
-// - Should write page to file 
+void close_db(Table* table) {
+    for (int i = 0; i < table->number_of_rows / MAX_ROWS_PER_PAGE) {
+        pager_flush(table);
+    }
+}
+
+void pager_flush(Table* table, int page_num) {
+    int success = write(table->pager->fd, table->pager->page[i], PAGE_SIZE);
+
+    if (success == -1) {
+        printf("Unable to write data into file. Try again..");
+        exit(1);
+    }
+} 
 
 void free_table(Table* table) {
     for (int i = 0; i <= MAX_PAGES_PER_TABLE; i++) {
-        free(table->pages[i]);
+        free(table->pager->pages[i]);
     }
     free(table);
 }
@@ -169,8 +168,6 @@ ExecuteResult execute_statement(Statement* statement, Table* table) {
             break;
     }
 }
-
-
 
 InputBuffer* get_previous_input(InputBuffer* input_buffer) {
     InputBuffer* previous_buffer;
@@ -201,7 +198,7 @@ int main(int argc, char* argv[]) {
         printf("Database file missing. \nUsage: ./db <file_name>");
         exit(1);
     }
-    Table* table = open_db();
+    Table* table = open_db(argv[0]);
 
     while (true) {
         print_prompt();
