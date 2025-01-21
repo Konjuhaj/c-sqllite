@@ -58,9 +58,11 @@ void deserialize(void* src, Row* dst) {
     memcpy(&(dst->email), src + EMAIL_OFFSET, EMAIL_SIZE);
 }
 
+// Add function to get a page
+
 void*   row_slot(Table* table, uint32_t row_number) {
     uint32_t page_num = row_number / MAX_ROWS_PER_PAGE;
-    void* page = table->pages[page_num];
+    void* page = table->pages[page_num]; // Replace with get page
 
     if (page == NULL) {
         page = table->pages[page_num] = malloc(PAGE_SIZE);
@@ -100,15 +102,55 @@ ExecuteResult select_from_table(Table* table) {
     return EXECUTE_SUCCESS;
 }
 
-Table*  new_table() {
+Pager* open_pager(char* filename) {
+    Pager* pager = malloc(sizeof(pager));
+
+    int fd =  open(filename, 
+                O_RDWR, // Read / write mode
+                O_CREAT, // Create if not exist
+                S_IWUSR, // User has write permissions
+                S_IRUSR // User has read permissions
+                );
+
+    if (fd == -1 ) {
+        printf("Unable to open file %s \n Try again..", filename);
+        exit(1);
+    }
+    
+    off_t file_end = lseek(fd, 0, SEEK_END);
+
+    for (int i = 0; i < MAX_PAGES_PER_TABLE; i++) {
+        pager->page[i] = NULL;
+    }
+    pager->fd = fd;
+    pager->file_length = file_end;
+    return pager;
+}
+
+// Add pager open function that opens a file with the following flags
+// - read/write mode
+// - Create if not exist 
+// - user wrtie permissions
+// - user read permissions 
+// MAN lseek, open 
+
+// Rename to open_db as table will be based on the db file
+// opening the database file
+// initializing a pager data structure
+// initializing a table data structure
+Table*  open_db(char* filename) { 
+    Pager* pager = open_pager(filename);
     Table *table = malloc(sizeof(Table));
 
-    for (int i = 0; i <= MAX_PAGES_PER_TABLE; i++) {
-        table->pages[i] = NULL;
-    }
-    table->number_of_rows = 0;
+    table->number_of_rows = pager->file_length / ROW_SIZE;
+    table->pager = pager;
     return table;
 }
+
+//Add function close_db
+// - Loops through pages and calls pager flush 
+//Add function pager_flush 
+// - Should write page to file 
 
 void free_table(Table* table) {
     for (int i = 0; i <= MAX_PAGES_PER_TABLE; i++) {
@@ -152,10 +194,14 @@ InputBuffer* get_previous_input(InputBuffer* input_buffer) {
     }
 }
 
-int main(void) {
+int main(int argc, char* argv[]) {
     InputBuffer* input_buffer = new_input_buffer();
-    input_buffer->buffer_length = 0; 
-    Table* table = new_table();
+
+    if (argc == 1) {
+        printf("Database file missing. \nUsage: ./db <file_name>");
+        exit(1);
+    }
+    Table* table = open_db();
 
     while (true) {
         print_prompt();
@@ -171,7 +217,7 @@ int main(void) {
 
         if (input_buffer->buffer[0] == '.') {
             switch(eval_meta_command(input_buffer, table)) {
-                case(META_COMMAND_SUCCESS):
+                case(META_COMMAND_SUCCESS): 
                     continue;
                 case(META_COMMAND_UNRECOGNIZED_COMMAND):
                     printf("Unrecognized meta command: %s \n", input_buffer->buffer);

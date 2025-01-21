@@ -50,8 +50,14 @@ typedef struct {
 } Statement;
 
 typedef struct {
-    uint32_t number_of_rows;
+    int fd;
+    uint32_t file_length;
     void*   pages[MAX_PAGES_PER_TABLE];
+} Pager;
+
+typedef struct {
+    uint32_t number_of_rows;
+    Pager   *pager;
 } Table;
 
 
