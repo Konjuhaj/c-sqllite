@@ -62,10 +62,10 @@ void deserialize(void* src, Row* dst) {
 
 void*   row_slot(Table* table, uint32_t row_number) {
     uint32_t page_num = row_number / MAX_ROWS_PER_PAGE;
-    void* page = table->pages[page_num]; // Replace with get page
+    void* page = table->pager->pages[page_num]; // Replace with get page
 
     if (page == NULL) {
-        page = table->pages[page_num] = malloc(PAGE_SIZE);
+        page = table->pager->pages[page_num] = malloc(PAGE_SIZE);
     }
 
     //TODO : READ More on these :
@@ -102,8 +102,8 @@ ExecuteResult select_from_table(Table* table) {
     return EXECUTE_SUCCESS;
 }
 
-Pager* open_pager(char* filename) {
-    Pager* pager = malloc(sizeof(pager));
+Pager* open_pager(const char* filename) {
+    Pager* pager = malloc(sizeof(Pager));
 
     int fd =  open(filename, 
                 O_RDWR, // Read / write mode
@@ -136,18 +136,18 @@ Table*  open_db(char* filename) {
     return table;
 }
 
-void close_db(Table* table) {
-    for (int i = 0; i < table->number_of_rows / MAX_ROWS_PER_PAGE) {
-        pager_flush(table);
-    }
-}
-
-void pager_flush(Table* table, int page_num) {
-    int success = write(table->pager->fd, table->pager->page[i], PAGE_SIZE);
+void pager_flush(Table* table, uint32_t page_num) {
+    int success = write(table->pager->fd, table->pager->pages[page_num], PAGE_SIZE);
 
     if (success == -1) {
         printf("Unable to write data into file. Try again..");
         exit(1);
+    }
+}
+
+void close_db(Table* table) {
+    for (uint32_t i = 0; i < table->number_of_rows / MAX_ROWS_PER_PAGE; i++) {
+        pager_flush(table, i);
     }
 }
 
@@ -191,7 +191,7 @@ int main(int argc, char* argv[]) {
         printf("Database file missing. \nUsage: ./db <file_name>");
         exit(1);
     }
-    Table* table = open_db(argv[0]);
+    Table* table = open_db(argv[1]);
 
     while (true) {
         print_prompt();
