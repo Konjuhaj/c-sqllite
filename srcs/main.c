@@ -137,6 +137,7 @@ Table*  open_db(char* filename) {
 }
 
 void pager_flush(Table* table, uint32_t page_num) {
+    printf("Writing page number %d \n", page_num);
     int success = write(table->pager->fd, table->pager->pages[page_num], PAGE_SIZE);
 
     if (success == -1) {
@@ -146,8 +147,18 @@ void pager_flush(Table* table, uint32_t page_num) {
 }
 
 void close_db(Table* table) {
+    printf("Number of rows in table %d\n", table->number_of_rows);
+    printf("max rows allowd %d\n", MAX_ROWS_PER_PAGE);
     for (uint32_t i = 0; i < table->number_of_rows / MAX_ROWS_PER_PAGE; i++) {
         pager_flush(table, i);
+    }
+
+    if (table->number_of_rows % MAX_ROWS_PER_PAGE > 0 ) {
+        int page_num = table->number_of_rows / MAX_ROWS_PER_PAGE;
+        if (table->number_of_rows > MAX_ROWS_PER_PAGE) {
+            page_num += 1;
+        }
+        pager_flush(table,  page_num);
     }
 }
 
