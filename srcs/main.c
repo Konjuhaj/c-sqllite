@@ -149,13 +149,6 @@ void pager_flush(Table* table, int page_num) {
         printf("Unable to write data into file. Try again..");
         exit(1);
     }
-} 
-
-void free_table(Table* table) {
-    for (int i = 0; i <= MAX_PAGES_PER_TABLE; i++) {
-        free(table->pager->pages[i]);
-    }
-    free(table);
 }
 
 ExecuteResult execute_statement(Statement* statement, Table* table) {

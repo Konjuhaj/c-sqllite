@@ -74,7 +74,7 @@ void close_input_buffer(InputBuffer* input_buffer);
 
 void print_prompt();
 
-void free_table(Table* table);
+void close_db(Table* table);
 
 
 // PROCESSOR FUNCTIONS

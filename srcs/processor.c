@@ -42,7 +42,7 @@ PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement)
 MetaCommandReult eval_meta_command(InputBuffer* input_buffer, Table* table) {
     if (strcmp(input_buffer->buffer, ".exit") == 0) {
         close_input_buffer(input_buffer);
-        free_table(table);
+        close_db(table);
         exit(1);
     }
     else {
