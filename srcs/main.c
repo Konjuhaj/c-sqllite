@@ -60,6 +60,10 @@ void deserialize(void* src, Row* dst) {
 
 // Add function to get a page
 
+void*   get_page(Table* table) {
+
+}
+
 void*   row_slot(Table* table, uint32_t row_number) {
     uint32_t page_num = row_number / MAX_ROWS_PER_PAGE;
     void* page = table->pager->pages[page_num]; // Replace with get page
@@ -101,6 +105,8 @@ ExecuteResult select_from_table(Table* table) {
 
     return EXECUTE_SUCCESS;
 }
+
+//TODO : Add proper functionality to read files. Currently file is read as null;
 
 Pager* open_pager(const char* filename) {
     Pager* pager = malloc(sizeof(Pager));
